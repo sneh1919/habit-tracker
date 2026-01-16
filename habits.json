@@ -1,3 +1,9 @@
 {
-  "habits": {}
+  "habits": {
+    "Study": {
+      "checkins": [
+        "2026-01-16"
+      ]
+    }
+  }
 }

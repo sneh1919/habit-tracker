@@ -106,7 +106,33 @@ def show_streak(name: str) -> None:
         current_day = current_day - timedelta(days=1)
 
     print(f"Current streak for '{name}' = {streak} day(s) 🔥")
+def show_stats(name: str, days: int = 7) -> None:
+    data = load_data()
+    habits = data["habits"]
 
+    if name not in habits:
+        print(f"Habit '{name}' not found.")
+        return
+
+    checkins = habits[name]["checkins"]
+    if not checkins:
+        print(f"No check-ins yet for '{name}'. Last {days} days: 0/{days} (0%)")
+        return
+
+    # Convert strings to date objects
+    done_dates = set(datetime.fromisoformat(d).date() for d in checkins)
+
+    today = date.today()
+    start_day = today - timedelta(days=days - 1)
+
+    completed = 0
+    for i in range(days):
+        day = start_day + timedelta(days=i)
+        if day in done_dates:
+            completed += 1
+
+    percent = round((completed / days) * 100)
+    print(f"Last {days} days for '{name}': {completed}/{days} ({percent}%) ✅")
 
 def help_message() -> None:
     print(
@@ -118,6 +144,8 @@ Commands:
   python habit_tracker.py list
   python habit_tracker.py done "Habit Name" [YYYY-MM-DD]
   python habit_tracker.py streak "Habit Name"
+  python habit_tracker.py stats "Habit Name" [days]
+
 
 Examples:
   python habit_tracker.py add "Study"
@@ -125,6 +153,9 @@ Examples:
   python habit_tracker.py done "Study"
   python habit_tracker.py done "Study" 2026-01-16
   python habit_tracker.py streak "Study"
+  python habit_tracker.py stats "Study"
+  python habit_tracker.py stats "Study" 30
+
 """
     )
 
@@ -149,6 +180,11 @@ def main():
 
     elif command == "streak" and len(sys.argv) >= 3:
         show_streak(sys.argv[2])
+    elif command == "stats" and len(sys.argv) >= 3:
+        habit_name = sys.argv[2]
+        days = int(sys.argv[3]) if len(sys.argv) >= 4 else 7
+        show_stats(habit_name, days)
+
 
     else:
         help_message()
